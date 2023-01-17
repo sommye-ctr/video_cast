@@ -1,3 +1,4 @@
-## 0.0.1
+## 1.0.0
 
-* TODO: Describe initial release.
+* Added onSessionEnding callback which returns last streamed position
+* Added media type, title, description etc for media extras
