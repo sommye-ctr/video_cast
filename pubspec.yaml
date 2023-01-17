@@ -1,6 +1,6 @@
 name: video_cast
 description: Flutter plugin for casting videos on chromecast devices
-version: 1.0.0
+version: 1.0.1
 homepage: https://github.com/sommye-ctr/video_cast.git
 
 environment:
