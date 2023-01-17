@@ -2,6 +2,8 @@
 
 Flutter plugin for casting videos on chromecast devices
 
+This is a modified version of [flutter_video_cast](https://pub.dev/packages/flutter_video_cast_v2) with extra features
+
 ## Installation
 
 First, add `video_cast` as a [dependency in your pubspec.yaml file](https://flutter.io/using-packages/).
