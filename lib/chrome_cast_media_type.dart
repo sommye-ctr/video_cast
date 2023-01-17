@@ -1,0 +1,1 @@
+enum ChromeCastMediaType { movie, show }
