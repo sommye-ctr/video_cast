@@ -52,5 +52,5 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     implementation 'com.google.android.gms:play-services-cast-framework:21.2.0'
-    implementation 'com.google.android.exoplayer:extension-cast:2.18.0'
+    implementation 'com.google.android.exoplayer:extension-cast:2.17.1'
 }
