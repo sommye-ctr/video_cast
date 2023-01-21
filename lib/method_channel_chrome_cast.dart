@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:stream_transform/stream_transform.dart';
+import 'package:video_cast/chrome_cast_subtitle.dart';
 
 import 'chrome_cast_event.dart';
 import 'chrome_cast_media_type.dart';
@@ -87,6 +88,7 @@ class MethodChannelChromeCast extends ChromeCastPlatform {
     required String description,
     required String image,
     required ChromeCastMediaType type,
+    List<ChromeCastSubtitle>? subtitles,
     int? showSeason,
     int? showEpisode,
   }) {
@@ -100,6 +102,7 @@ class MethodChannelChromeCast extends ChromeCastPlatform {
       'season': showSeason,
       'episode': showEpisode,
       'type': type == ChromeCastMediaType.movie ? 0 : 1,
+      'subtitles': subtitles?.map((e) => e.toMap()).toList(),
     };
     return channel(id)!.invokeMethod<void>('chromeCast#loadMedia', args);
   }
@@ -127,6 +130,16 @@ class MethodChannelChromeCast extends ChromeCastPlatform {
   Future<void> setVolume(double volume, {required int id}) {
     final Map<String, dynamic> args = {'volume': volume};
     return channel(id)!.invokeMethod<void>('chromeCast#setVolume', args);
+  }
+
+  @override
+  Future<void> updateTracks({required int id, required double subId}) {
+    return channel(id)!.invokeMethod("chromeCast#updateSubtitles", subId);
+  }
+
+  @override
+  Future<void> disableTracks({required int id}) {
+    return channel(id)!.invokeMethod("chromeCast#removeSubtitles");
   }
 
   @override

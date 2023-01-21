@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'chrome_cast_event.dart';
 import 'chrome_cast_media_type.dart';
+import 'chrome_cast_subtitle.dart';
 import 'method_channel_chrome_cast.dart';
 
 /// The interface that platform-specific implementations of `flutter_video_cast` must extend.
@@ -67,6 +68,7 @@ abstract class ChromeCastPlatform {
     required String description,
     required String image,
     required ChromeCastMediaType type,
+    List<ChromeCastSubtitle>? subtitles,
     int? showSeason,
     int? showEpisode,
   }) {
@@ -93,6 +95,16 @@ abstract class ChromeCastPlatform {
   /// Set volume
   Future<void> setVolume(double volume, {required int id}) {
     throw UnimplementedError('setVolume() has not been implemented.');
+  }
+
+  /// Update Subtitle Track
+  Future<void> updateTracks({required int id, required double subId}) {
+    throw UnimplementedError('updateTracks() has not been implemented.');
+  }
+
+  /// Disable current active subtitle track
+  Future<void> disableTracks({required int id}) {
+    throw UnimplementedError('disableTracks() has not been implemented.');
   }
 
   /// Get volume

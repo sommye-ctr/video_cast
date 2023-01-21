@@ -7,6 +7,9 @@ class ChromeCastController {
   /// The id for this controller
   final int id;
 
+  Timer? _timer;
+  StreamController<Duration>? _streamController;
+
   ChromeCastController._({required this.id});
 
   /// Initialize control of a [ChromeCastButton] with [id].
@@ -34,11 +37,13 @@ class ChromeCastController {
   /// [position] - Position (in ms) from which to start the media<br>
   /// [autoplay] - Flag to disable/enable autoplay<br>
   /// [showSeason] - Season No. for tv show<br>
-  /// [showEpisode] - Episode No. for tv show
+  /// [showEpisode] - Episode No. for tv show<br>
+  /// [subtitles] - Subtitle tracks
   Future<void> loadMedia({
     required ChromeCastMediaType type,
     required String url,
     required String title,
+    List<ChromeCastSubtitle>? subtitles,
     String? description,
     String? image,
     double position = 0,
@@ -57,6 +62,7 @@ class ChromeCastController {
       type: type,
       showEpisode: showEpisode,
       showSeason: showSeason,
+      subtitles: subtitles,
     );
   }
 
@@ -80,6 +86,17 @@ class ChromeCastController {
   /// Set volume 0-1
   Future<void> setVolume({double volume = 0}) {
     return _chromeCastPlatform.setVolume(volume, id: id);
+  }
+
+  /// Set active subtitle track
+  /// [subId] - Subtitle unique id passed in loadMedia()
+  Future<void> setTrack({required double subId}) {
+    return _chromeCastPlatform.updateTracks(id: id, subId: subId);
+  }
+
+  /// Disables the current active subtitle track
+  Future<void> disableTrack() {
+    return _chromeCastPlatform.disableTracks(id: id);
   }
 
   /// Get current volume
@@ -115,5 +132,29 @@ class ChromeCastController {
   /// Returns video duration.
   Future<Duration> duration() {
     return _chromeCastPlatform.duration(id: id);
+  }
+
+  /// Returns a stream for progress updates.
+  /// Call cancelTimer() to dispose
+  Stream<Duration> onProgressEvent() {
+    _streamController = StreamController<Duration>();
+
+    _timer = Timer.periodic(
+      const Duration(
+        milliseconds: 500,
+      ),
+      (timer) async {
+        Duration duration = await position();
+        _streamController?.add(duration);
+      },
+    );
+
+    return _streamController!.stream;
+  }
+
+  /// Cancels timer of progress updates.
+  void cancelTimer() {
+    _timer?.cancel();
+    _streamController?.close();
   }
 }

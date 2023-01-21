@@ -13,6 +13,7 @@ import com.google.android.gms.cast.framework.CastButtonFactory
 import com.google.android.gms.cast.framework.CastContext
 import com.google.android.gms.cast.framework.Session
 import com.google.android.gms.cast.framework.SessionManagerListener
+import com.google.android.gms.cast.framework.media.RemoteMediaClient
 import com.google.android.gms.common.api.PendingResult
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.common.images.WebImage
@@ -49,6 +50,7 @@ class ChromeCastController(
             val type = args["type"] as? Int
             val season = args["season"] as? Int
             val episode = args["episode"] as? Int
+            val subtitles = args["subtitles"] as? List<*>
 
             val mediaMeta: MediaMetadata = if (type== movie){
                 MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE)
@@ -62,10 +64,27 @@ class ChromeCastController(
 
             mediaMeta.addImage(WebImage(Uri.parse(image)))
 
+            val tracks = mutableListOf<MediaTrack>();
+            if (subtitles != null) {
+                for (element in subtitles){
+                    if (element is Map<*, *>){
+                        val subtitleTrack = MediaTrack.Builder((element["id"] as Double).toLong(), MediaTrack.TYPE_TEXT);
+                        subtitleTrack.setSubtype(MediaTrack.SUBTYPE_SUBTITLES)
+                        subtitleTrack.setName(element["name"] as String?)
+                        subtitleTrack.setContentId(element["source"] as String?)
+                        subtitleTrack.setLanguage(element["language"] as String?)
+                        tracks.add(subtitleTrack.build())
+                    }
+                }
+            }
+
+
             val media = MediaInfo.Builder(url!!)
                 .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
                 .setMetadata(mediaMeta)
+                .setMediaTracks(tracks)
                 .build()
+
             val optionsBuilder = MediaLoadOptions.Builder()
             autoPlay?.let { optionsBuilder.setAutoplay(it) }
             position?.let { optionsBuilder.setPlayPosition(it.toLong()) }
@@ -102,6 +121,16 @@ class ChromeCastController(
         if (args is Map<*, *>) {
             val volume = args["volume"] as? Double
             val request = sessionManager?.currentCastSession?.remoteMediaClient?.setStreamVolume(volume ?: 0.0)
+            request?.addStatusListener(this)
+        }
+    }
+
+    private fun updateSubtitle(args: Double?) {
+        if (args != null){
+            val request = sessionManager?.currentCastSession?.remoteMediaClient?.setActiveMediaTracks(longArrayOf(args.toLong()))
+            request?.addStatusListener(this)
+        } else {
+            val request = sessionManager?.currentCastSession?.remoteMediaClient?.setActiveMediaTracks(longArrayOf())
             request?.addStatusListener(this)
         }
     }
@@ -161,6 +190,15 @@ class ChromeCastController(
             "chromeCast#setVolume" -> {
                 setVolume(call.arguments)
                 result.success(null)
+            }
+            "chromeCast#updateSubtitles" -> {
+                updateSubtitle(call.arguments as Double?)
+                result.success(null)
+            }
+            "chromeCast#removeSubtitles" -> {
+                updateSubtitle(null)
+                result
+                    .success(null)
             }
             "chromeCast#getVolume" -> result.success(getVolume())
             "chromeCast#stop" -> {
