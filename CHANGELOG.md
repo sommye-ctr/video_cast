@@ -1,4 +1,9 @@
-## 1.0.0
+## 1.0.2
+
+* Added subtitle tracks
+* Added progress updates
+
+## 1.0.1
 
 * Updated Readme
 
